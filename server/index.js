@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = 5000;
 
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -18,7 +18,9 @@ const { auth } = require("./middleware/auth");
 app.use(bodyParser.urlencoded({ extended: true }));
 //application/json
 app.use(bodyParser.json());
-app.use(cookeParser());
+app.use(cookieParser());
+
+app.listen(port, () => console.log("I'm waiting for 3000 port"));
 
 /*
   mongoose => mongodb와 연결!
@@ -36,6 +38,10 @@ mongoose
 
 app.get("/", (req, res) => {
   res.send("Hello chillgu~ Welcome to the express World!");
+});
+
+app.get("/api/hello", (req, res) => {
+  res.send("hello axios");
 });
 
 /*
@@ -96,46 +102,51 @@ app.post("/api/users/login", (req, res) => {
 
   // 일치한다면 token을 발행한다.
   user.generateToken((err, user) => {
-    if(err) return res.status(400).json({
-      loginSuccess: false,
-      err
-    })
+    if (err)
+      return res.status(400).json({
+        loginSuccess: false,
+        err,
+      });
 
     return res.cookie("x_auth", user.token).status(200).json({
       loginSuccess: true,
-      userId: user._id
-    })
-  })
+      userId: user._id,
+    });
+  });
 
-app.get("/api/users/auth", auth, (req, res) => {
-  let user = req.user;
-  res.status(200).json({
-    _id: user._id,
-    email: user.eamil,
-    isAdmin: user.role = 0 ? false : true,
-    name: user.name,
-    lastname: user.lastname,
-    role: user.role,
-    image: user.image, 
-    isAuth: true
-  })
-})
+  app.get("/api/users/auth", auth, (req, res) => {
+    let user = req.user;
+    res.status(200).json({
+      _id: user._id,
+      email: user.eamil,
+      isAdmin: (user.role = 0 ? false : true),
+      name: user.name,
+      lastname: user.lastname,
+      role: user.role,
+      image: user.image,
+      isAuth: true,
+    });
+  });
 
-app.get("/api/users/logout", auth, (req, res) => {
-  User.findOneAndUpdate({
-    _id: req.user._id
-  }, {
-    token: ""
-  }, (err, user) => {
-    if(err) return res.json({
-      logoutSuccess: false,
-      err
-    })
+  app.get("/api/users/logout", auth, (req, res) => {
+    User.findOneAndUpdate(
+      {
+        _id: req.user._id,
+      },
+      {
+        token: "",
+      },
+      (err, user) => {
+        if (err)
+          return res.json({
+            logoutSuccess: false,
+            err,
+          });
 
-    return res.status(200).send({
-      logoutSuccess: true
-    })
-  })
-})
-
-app.listen(port, () => console.log("I'm waiting for 3000 port"));
+        return res.status(200).send({
+          logoutSuccess: true,
+        });
+      }
+    );
+  });
+});
