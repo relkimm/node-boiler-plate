@@ -11,14 +11,14 @@ function App() {
   return (
     <Router>
       <div>
-        <Switch>
+        <switch>
           <Route exact path="/" component={LandingPage} />
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/register" component={RegisterPage} />
-        </Switch>
+        </switch>
       </div>
     </Router>
-  );
+  )
 }
 
 export default App;
